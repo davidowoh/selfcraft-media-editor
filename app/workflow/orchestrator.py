@@ -5,6 +5,7 @@ from app.ai.speaker import detect_speaker_name
 from app.media.render import burn_captions, export_final
 from app.export.naming import get_output_path
 from app.logging.logger import get_logger
+from database.db import update_progress
 
 log = get_logger("orchestrator")
 
@@ -19,49 +20,44 @@ def get_template(video_path):
     else:
         return "lesson"
 
-def process_video(video_path):
+def process_video(video_path, video_id=None):
     os.makedirs(EDITED_FOLDER, exist_ok=True)
     os.makedirs(TEMP_FOLDER, exist_ok=True)
     log.info(f"Starting: {video_path}")
-    print(f"\n--- Processing: {video_path} ---")
+
+    def report(msg):
+        print(msg)
+        if video_id:
+            update_progress(video_id, msg)
 
     base_name = os.path.splitext(os.path.basename(video_path))[0]
     template = get_template(video_path)
-    print(f"Template detected: {template}")
 
-    # Step 1: Transcribe
-    print("Step 1: Transcribing audio...")
+    report("Transcribing audio with Whisper AI…")
     result = transcribe(video_path)
     srt_path = os.path.join(TEMP_FOLDER, f"{base_name}.srt")
     write_srt(result, srt_path)
 
-    # Step 2: Speaker detection for testimonials
-    speaker_name = None
     if template == "testimonial":
-        print("Step 2: Detecting speaker name...")
-        transcript_text = result['text']
-        speaker_name, confidence = detect_speaker_name(transcript_text)
+        report("Detecting speaker name from transcript…")
+        speaker_name, confidence = detect_speaker_name(result['text'])
         if speaker_name:
-            print(f"Speaker detected: {speaker_name} (confidence: {confidence})")
+            report(f"Speaker identified: {speaker_name}")
         else:
-            print("Speaker not detected — will need manual review.")
+            report("Speaker not detected — continuing without name overlay")
 
-    # Step 3: Burn captions
-    print("Step 3: Burning captions...")
+    report("Burning captions onto video…")
     captioned_path = os.path.join(TEMP_FOLDER, f"{base_name}_captioned.mp4")
     burn_captions(video_path, srt_path, captioned_path)
 
-    # Step 4: Export in correct orientation
-    print("Step 4: Exporting final video...")
+    report("Exporting final video in correct format…")
     target = 'landscape' if template == 'lesson' else 'reel'
     output_path = get_output_path(video_path, EDITED_FOLDER)
     export_final(captioned_path, output_path, target=target)
 
-    # Step 5: Clean up
+    report("Cleaning up temporary files…")
     os.remove(captioned_path)
     os.remove(srt_path)
-    print("Step 5: Cleaned up temporary files.")
 
     log.info(f"Completed: {output_path}")
-    print(f"\n✓ Done: {output_path}")
     return output_path

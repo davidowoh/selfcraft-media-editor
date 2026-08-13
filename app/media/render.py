@@ -1,9 +1,15 @@
 import subprocess
 
 def burn_captions(input_path, srt_path, output_path):
+    subtitle_filter = (
+        f"subtitles={srt_path}:force_style="
+        "'FontName=Liberation Sans,FontSize=14,PrimaryColour=&H00FFFFFF,"
+        "OutlineColour=&H00000000,Outline=2,Shadow=1,"
+        "Alignment=2,MarginV=20'"
+    )
     subprocess.run([
         'ffmpeg', '-y', '-i', input_path,
-        '-vf', f"subtitles={srt_path}",
+        '-vf', subtitle_filter,
         '-c:a', 'copy',
         output_path
     ], check=True)
