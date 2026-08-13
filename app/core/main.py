@@ -1,9 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database.db import get_all_videos, get_video_by_id, update_status
+from contextlib import asynccontextmanager
+from database.db import get_all_videos, get_video_by_id, update_status, reset_stuck_jobs
 from app.workflow.orchestrator import process_video
 
-app = FastAPI(title="SME Local API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("SME starting up — checking for stuck jobs...")
+    reset_stuck_jobs()
+    yield
+    print("SME shutting down.")
+
+app = FastAPI(title="SME Local API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,6 +47,9 @@ def trigger_process(video_id: int):
     video = get_video_by_id(video_id)
     if not video:
         return {"error": "Video not found"}
+    if not __import__('os').path.exists(video[1]):
+        update_status(video_id, "failed")
+        return {"error": f"File not found on disk: {video[1]}"}
     update_status(video_id, "processing")
     try:
         output = process_video(video[1])
@@ -46,4 +57,6 @@ def trigger_process(video_id: int):
         return {"status": "completed", "output": output}
     except Exception as e:
         update_status(video_id, "failed")
+        log_message = f"Processing failed for video {video_id}: {str(e)}"
+        print(log_message)
         return {"status": "failed", "error": str(e)}

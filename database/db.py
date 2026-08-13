@@ -49,3 +49,10 @@ def update_status(video_id, status):
     conn.execute("UPDATE videos SET status = ? WHERE id = ?", (status, video_id))
     conn.commit()
     conn.close()
+
+def reset_stuck_jobs():
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE videos SET status = 'detected' WHERE status = 'processing'")
+    conn.commit()
+    conn.close()
+    print("Recovered any stuck jobs.")
