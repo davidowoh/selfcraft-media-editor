@@ -37,3 +37,15 @@ def get_all_videos():
     rows = conn.execute("SELECT * FROM videos ORDER BY date_added DESC").fetchall()
     conn.close()
     return rows
+
+def get_video_by_id(video_id):
+    conn = sqlite3.connect(DB_PATH)
+    row = conn.execute("SELECT * FROM videos WHERE id = ?", (video_id,)).fetchone()
+    conn.close()
+    return row
+
+def update_status(video_id, status):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE videos SET status = ? WHERE id = ?", (status, video_id))
+    conn.commit()
+    conn.close()

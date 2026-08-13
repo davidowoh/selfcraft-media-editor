@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SME Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f0f0f0; padding: 2rem; }
+    h1 { color: #1a1a1a; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; background: white;
+            border-radius: 8px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    th { background: #1a1a1a; color: white; padding: 12px 16px;
+         text-align: left; font-size: 0.85rem; text-transform: uppercase;
+         letter-spacing: 0.05em; }
+    td { padding: 12px 16px; border-bottom: 1px solid #eee;
+         font-size: 0.9rem; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .status { font-weight: bold; }
+    .status-detected { color: #888; }
+    .status-processing { color: #e67e00; }
+    .status-completed { color: #2a9d2a; }
+    .status-failed { color: #cc2222; }
+    button { background: #1a1a1a; color: white; border: none;
+             padding: 6px 16px; border-radius: 4px; cursor: pointer;
+             font-size: 0.85rem; }
+    button:hover { background: #444; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .empty { text-align: center; padding: 3rem; color: #999; }
+  </style>
+</head>
+<body>
+  <h1>SelfCraft Media Editor</h1>
+  <p class="subtitle" id="subtitle">Loading...</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Lesson</th>
+        <th>Programme</th>
+        <th>Week</th>
+        <th>Module</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="queue"></tbody>
+  </table>
+
+  <script>
+    const API = 'http://127.0.0.1:8000';
+
+    async function load() {
+      try {
+        const res = await fetch(API + '/videos');
+        const videos = await res.json();
+        const total = videos.length;
+        const completed = videos.filter(v => v.status === 'completed').length;
+        const failed = videos.filter(v => v.status === 'failed').length;
+        const waiting = videos.filter(v => v.status === 'detected').length;
+
+        document.getElementById('subtitle').textContent =
+          `${total} videos total — ${waiting} waiting, ${completed} completed, ${failed} failed`;
+
+        const tbody = document.getElementById('queue');
+
+        if (total === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty">No videos detected yet. Drop a video into your watched folder.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = videos.map(v => `
+          <tr>
+            <td>${v.lesson_title || v.filepath.split('/').pop()}</td>
+            <td>${v.programme || '—'}</td>
+            <td>${v.week || '—'}</td>
+            <td>${v.module || '—'}</td>
+            <td class="status status-${v.status}">${v.status}</td>
+            <td>
+              ${v.status === 'detected' || v.status === 'failed'
+                ? `<button onclick="process(${v.id}, this)">Process</button>`
+                : '—'}
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        document.getElementById('subtitle').textContent = 'Cannot reach backend — is the server running?';
+      }
+    }
+
+    async function process(id, btn) {
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      await fetch(API + '/process/' + id, { method: 'POST' });
+      load();
+    }
+
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>
