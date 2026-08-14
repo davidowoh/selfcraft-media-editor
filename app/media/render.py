@@ -1,12 +1,20 @@
 import subprocess
+from app.core.config import get_caption_style
 
 def burn_captions(input_path, srt_path, output_path):
-    subtitle_filter = (
-        f"subtitles={srt_path}:force_style="
-        "'FontName=Liberation Sans,FontSize=14,PrimaryColour=&H00FFFFFF,"
-        "OutlineColour=&H00000000,Outline=2,Shadow=1,"
-        "Alignment=2,MarginV=20'"
+    style = get_caption_style()
+    style_str = (
+        f"FontName={style['font']}"
+        f",FontSize={style['size']}"
+        f",PrimaryColour={style['colour']}"
+        f",OutlineColour={style['outline_colour']}"
+        f",Outline={style['outline']}"
+        f",Shadow={style['shadow']}"
+        f",Alignment=2"
+        f",MarginV={style['margin_bottom']}"
     )
+    safe_srt = srt_path.replace(':', '\\:')
+    subtitle_filter = f"subtitles={safe_srt}:force_style='{style_str}'"
     subprocess.run([
         'ffmpeg', '-y', '-i', input_path,
         '-vf', subtitle_filter,

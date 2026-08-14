@@ -1,12 +1,14 @@
 import whisper
+from app.core.config import get_whisper_model
 
 _model = None
 
 def get_model():
     global _model
     if _model is None:
-        print("Loading Whisper model... (first time only, takes a moment)")
-        _model = whisper.load_model("base")
+        model_name = get_whisper_model()
+        print(f"Loading Whisper model ({model_name})...")
+        _model = whisper.load_model(model_name)
         print("Model loaded.")
     return _model
 
@@ -29,4 +31,4 @@ def write_srt(result, output_path):
             f.write(f"{i}\n")
             f.write(f"{format_timestamp(seg['start'])} --> {format_timestamp(seg['end'])}\n")
             f.write(f"{seg['text'].strip()}\n\n")
-    print(f"SRT file written: {output_path}")
+    print(f"SRT written: {output_path}")

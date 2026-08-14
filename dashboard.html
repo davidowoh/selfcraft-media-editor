@@ -14,18 +14,40 @@
     .header-left img { height: 40px; width: auto; border-radius: 6px; }
     h1 { color: #1a1a1a; font-size: 1.4rem; }
     .subtitle { color: #666; font-size: 0.82rem; margin-top: 0.2rem; }
+    .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
     .btn { border: none; padding: 7px 16px; border-radius: 4px;
-           cursor: pointer; font-size: 0.82rem; font-weight: 600; }
-    .btn-danger { background: #cc2222; color: white; }
-    .btn-danger:hover { background: #aa1111; }
+           cursor: pointer; font-size: 0.82rem; font-weight: 600;
+           transition: background 0.15s; }
     .btn-dark { background: #1a1a1a; color: white; }
     .btn-dark:hover { background: #444; }
+    .btn-danger { background: #cc2222; color: white; }
+    .btn-danger:hover { background: #aa1111; }
     .btn-green { background: #2a9d2a; color: white; }
     .btn-green:hover { background: #1e7a1e; }
-    .btn:disabled { background: #ccc !important; cursor: not-allowed; }
+    .btn-outline { background: white; color: #1a1a1a;
+                   border: 1.5px solid #ccc; }
+    .btn-outline:hover { background: #f5f5f5; border-color: #999; }
+    .btn-play { background: #1a6fcc; color: white; }
+    .btn-play:hover { background: #155ab0; }
+    .btn-play-edited { background: #7b2fbe; color: white; }
+    .btn-play-edited:hover { background: #6320a0; }
+    .btn:disabled { background: #ccc !important;
+                    border-color: #ccc !important;
+                    color: #fff !important; cursor: not-allowed; }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
 
-    .stats { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .folder-bar { display: flex; gap: 0.5rem; flex-wrap: wrap;
+                  margin-bottom: 1.25rem; }
+    .folder-btn { display: flex; align-items: center; gap: 6px;
+                  background: white; border: 1.5px solid #ddd;
+                  border-radius: 6px; padding: 6px 12px;
+                  font-size: 0.8rem; cursor: pointer; color: #333;
+                  transition: border-color 0.15s, background 0.15s; }
+    .folder-btn:hover { border-color: #999; background: #fafafa; }
+
+    .stats { display: flex; gap: 0.75rem; flex-wrap: wrap;
+             margin-bottom: 1.25rem; }
     .stat { background: white; border-radius: 6px; padding: 0.6rem 1rem;
             font-size: 0.78rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     .stat strong { display: block; font-size: 1.25rem; }
@@ -40,13 +62,13 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
     th { background: #1a1a1a; color: white; padding: 11px 14px;
          text-align: left; font-size: 0.78rem;
-         text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+         text-transform: uppercase; letter-spacing: 0.05em;
+         white-space: nowrap; }
     td { padding: 11px 14px; border-bottom: 1px solid #eee;
          font-size: 0.85rem; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr.row-completed td { background: #f8fff8; }
     tr.row-failed td { background: #fff8f8; }
-    tr:hover td { filter: brightness(0.97); }
 
     .status { font-weight: bold; font-size: 0.78rem;
               padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
@@ -57,15 +79,74 @@
 
     .date-cell { font-size: 0.75rem; color: #999; white-space: nowrap; }
     .progress-cell { font-size: 0.78rem; color: #e67e00;
-                     font-style: italic; max-width: 200px; }
+                     font-style: italic; max-width: 180px; }
     .progress-dot { display: inline-block; animation: blink 1s infinite; }
     @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
     .v2-note { font-size: 0.72rem; color: #888;
                display: block; margin-top: 3px; }
-    .content-type { font-size: 0.72rem; color: #888;
-                    background: #f0f0f0; padding: 2px 6px;
-                    border-radius: 4px; display: inline-block; margin-top: 3px; }
+    .content-type { font-size: 0.72rem; color: #888; background: #f0f0f0;
+                    padding: 2px 6px; border-radius: 4px;
+                    display: inline-block; margin-top: 3px; }
+    .action-cell { display: flex; flex-direction: column;
+                   gap: 4px; align-items: flex-start; }
+    .play-row { display: flex; gap: 4px; margin-top: 2px; }
     .empty { text-align: center; padding: 3rem; color: #999; }
+
+    /* Restart banner */
+    .restart-banner { display: none; background: #fff3e0;
+                      border: 1.5px solid #e67e00; border-radius: 6px;
+                      padding: 0.75rem 1rem; margin-bottom: 1rem;
+                      font-size: 0.85rem; color: #7a4000;
+                      align-items: center; justify-content: space-between;
+                      gap: 0.75rem; flex-wrap: wrap; }
+    .restart-banner.show { display: flex; }
+
+    /* Video player modal */
+    .modal-overlay { display: none; position: fixed; inset: 0;
+                     background: rgba(0,0,0,0.82); z-index: 200;
+                     align-items: center; justify-content: center;
+                     flex-direction: column; gap: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-title { color: white; font-size: 0.9rem; font-weight: 600;
+                   max-width: 90vw; text-align: center; }
+    .modal-subtitle { color: #aaa; font-size: 0.78rem; }
+    .modal-video { max-width: 90vw; max-height: 70vh;
+                   border-radius: 8px; background: black; }
+    .modal-close { color: white; background: rgba(255,255,255,0.15);
+                   border: none; padding: 8px 20px; border-radius: 4px;
+                   cursor: pointer; font-size: 0.85rem; }
+    .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+    /* Settings panel */
+    .settings-overlay { display: none; position: fixed; inset: 0;
+                        background: rgba(0,0,0,0.45); z-index: 100;
+                        align-items: center; justify-content: center; }
+    .settings-overlay.open { display: flex; }
+    .settings-panel { background: white; border-radius: 10px;
+                      padding: 1.5rem; width: 100%; max-width: 540px;
+                      max-height: 90vh; overflow-y: auto;
+                      box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+    .settings-panel h2 { font-size: 1.1rem; margin-bottom: 1.25rem; }
+    .settings-section-title { font-size: 0.72rem; text-transform: uppercase;
+                               letter-spacing: 0.08em; color: #999;
+                               margin-bottom: 0.75rem; padding-bottom: 0.4rem;
+                               border-bottom: 1px solid #eee; }
+    .settings-group { margin-bottom: 1rem; }
+    .settings-group label { display: block; font-size: 0.8rem; color: #555;
+                             margin-bottom: 0.3rem; font-weight: 600; }
+    .settings-group input, .settings-group select {
+      width: 100%; padding: 8px 10px; border: 1.5px solid #ddd;
+      border-radius: 5px; font-size: 0.85rem; color: #1a1a1a; }
+    .settings-group input:focus, .settings-group select:focus {
+      outline: none; border-color: #1a1a1a; }
+    .folder-input-row { display: flex; gap: 6px; }
+    .folder-input-row input { flex: 1; }
+    .settings-row { display: flex; gap: 0.75rem; }
+    .settings-row .settings-group { flex: 1; }
+    .settings-footer { display: flex; justify-content: flex-end;
+                       gap: 0.5rem; margin-top: 1rem; }
+    .settings-note { font-size: 0.75rem; color: #999;
+                     margin-top: 0.3rem; }
 
     .card-list { display: none; flex-direction: column; gap: 0.75rem; }
     .card { background: white; border-radius: 8px; padding: 1rem;
@@ -79,8 +160,8 @@
                  margin-bottom: 0.6rem; line-height: 1.7; }
     .card-progress { font-size: 0.78rem; color: #e67e00;
                      font-style: italic; margin-bottom: 0.5rem; }
-    .card-footer { display: flex; align-items: center;
-                   justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+    .card-footer { display: flex; flex-direction: column; gap: 0.5rem; }
+    .card-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
     @media (max-width: 640px) {
       body { padding: 0.85rem; }
@@ -88,11 +169,138 @@
       .card-list { display: flex; }
       .stats { gap: 0.5rem; }
       .stat { padding: 0.5rem 0.75rem; }
+      .folder-btn { font-size: 0.75rem; padding: 5px 10px; }
     }
   </style>
 </head>
 <body>
 
+<!-- Video player modal -->
+<div class="modal-overlay" id="playerModal" onclick="closePlayer(event)">
+  <div class="modal-title" id="playerTitle">—</div>
+  <div class="modal-subtitle" id="playerSubtitle"></div>
+  <video class="modal-video" id="playerVideo" controls></video>
+  <button class="modal-close" onclick="closePlayerBtn()">✕ Close</button>
+</div>
+
+<!-- Settings overlay -->
+<div class="settings-overlay" id="settingsOverlay"
+     onclick="closeSettingsIfOutside(event)">
+  <div class="settings-panel">
+    <h2>⚙️ Settings</h2>
+
+    <div class="settings-section-title">Folder Paths</div>
+    <div class="settings-group">
+      <label>Raw Videos Folder</label>
+      <div class="folder-input-row">
+        <input type="text" id="cfg-raw">
+        <button class="btn btn-outline"
+                onclick="browseTo('cfg-raw')">Browse</button>
+      </div>
+    </div>
+    <div class="settings-group">
+      <label>Edited Videos Folder</label>
+      <div class="folder-input-row">
+        <input type="text" id="cfg-edited">
+        <button class="btn btn-outline"
+                onclick="browseTo('cfg-edited')">Browse</button>
+      </div>
+    </div>
+    <div class="settings-group">
+      <label>Temp Folder</label>
+      <div class="folder-input-row">
+        <input type="text" id="cfg-temp">
+        <button class="btn btn-outline"
+                onclick="browseTo('cfg-temp')">Browse</button>
+      </div>
+    </div>
+    <div class="settings-note" style="margin-bottom:0.5rem">
+      ⚠ Folder changes require a server restart to take effect.
+    </div>
+
+    <div class="settings-section-title" style="margin-top:1rem">
+      File Manager
+    </div>
+    <div class="settings-group">
+      <label>Open folders with</label>
+      <select id="cfg-filemanager">
+        <option value="nautilus">GNOME Files (default on Ubuntu/Fedora)</option>
+        <option value="thunar">Thunar (XFCE)</option>
+        <option value="dolphin">Dolphin (KDE)</option>
+        <option value="nemo">Nemo (Linux Mint)</option>
+        <option value="explorer">Windows Explorer</option>
+      </select>
+    </div>
+
+    <div class="settings-section-title">Video Player</div>
+    <div class="settings-group">
+      <label>Play videos with</label>
+      <select id="cfg-videoplayer">
+        <option value="browser">Built-in browser player</option>
+        <option value="vlc">VLC Media Player</option>
+        <option value="mpv">mpv</option>
+        <option value="default">System default player</option>
+      </select>
+      <div class="settings-note">
+        VLC and mpv must be installed on your machine separately.
+      </div>
+    </div>
+
+    <div class="settings-section-title">Caption Style</div>
+    <div class="settings-row">
+      <div class="settings-group">
+        <label>Font</label>
+        <select id="cfg-font">
+          <option>Liberation Sans</option>
+          <option>Arial</option>
+          <option>DejaVu Sans</option>
+          <option>FreeSans</option>
+          <option>Noto Sans</option>
+        </select>
+      </div>
+      <div class="settings-group">
+        <label>Font Size</label>
+        <input type="number" id="cfg-size" min="8" max="48" step="1">
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-group">
+        <label>Outline Thickness</label>
+        <input type="number" id="cfg-outline" min="0" max="5" step="1">
+      </div>
+      <div class="settings-group">
+        <label>Bottom Margin (px)</label>
+        <input type="number" id="cfg-margin" min="0" max="100" step="1">
+      </div>
+    </div>
+    <div class="settings-note" style="margin-bottom:0.5rem">
+      Caption changes take effect on the next video processed.
+      No restart needed.
+    </div>
+
+    <div class="settings-section-title">Whisper Model</div>
+    <div class="settings-group">
+      <label>Transcription quality</label>
+      <select id="cfg-whisper">
+        <option value="tiny">Fastest — lower accuracy</option>
+        <option value="base">Balanced — recommended</option>
+        <option value="small">Slower — higher accuracy</option>
+      </select>
+      <div class="settings-note">
+        Model changes require a server restart to take effect.
+      </div>
+    </div>
+
+    <div class="settings-footer">
+      <button class="btn btn-outline" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-dark" onclick="saveSettings()">
+        Save Settings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main UI -->
 <header>
   <div class="header-left">
     <img src="logo.jpeg" alt="SelfCraft"
@@ -102,16 +310,45 @@
       <div class="subtitle" id="subtitle">Connecting…</div>
     </div>
   </div>
-  <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-    <!-- <button class="btn btn-dark" onclick="syncNow()">⟳ Sync Files</button> -->
-    <button class="btn btn-danger" onclick="clearCompleted()">🗑 Clear Completed</button>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="openSettings()">
+      ⚙️ Settings
+    </button>
+    <button class="btn btn-danger" onclick="clearCompleted()">
+      🗑 Clear Completed
+    </button>
   </div>
 </header>
 
+<!-- Restart banner -->
+<div class="restart-banner" id="restartBanner">
+  <span>⚠ Settings saved. A restart is needed for folder and model
+    changes to take effect.</span>
+  <button class="btn btn-dark" onclick="restartServer()">
+    ↺ Restart Now
+  </button>
+</div>
+
+<div class="folder-bar">
+  <button class="folder-btn" onclick="openFolder('raw_videos')">
+    <span>📂</span> Raw Videos
+  </button>
+  <button class="folder-btn" onclick="openFolder('edited_videos')">
+    <span>🎬</span> Edited Videos
+  </button>
+  <button class="folder-btn" onclick="openFolder('temp')">
+    <span>🗂</span> Temp
+  </button>
+</div>
+
 <div class="stats">
   <div class="stat waiting"><strong id="s-waiting">—</strong>Waiting</div>
-  <div class="stat processing"><strong id="s-processing">—</strong>Processing</div>
-  <div class="stat completed"><strong id="s-completed">—</strong>Completed</div>
+  <div class="stat processing">
+    <strong id="s-processing">—</strong>Processing
+  </div>
+  <div class="stat completed">
+    <strong id="s-completed">—</strong>Completed
+  </div>
   <div class="stat failed"><strong id="s-failed">—</strong>Failed</div>
 </div>
 
@@ -136,8 +373,10 @@
 <script>
   const API = 'http://127.0.0.1:8000';
   let isProcessing = false;
-  // Cache version labels so we don't fetch on every render
   const versionCache = {};
+  let lastVideoJson = '';
+  let lastCardJson = '';
+  let videoPlayer = 'browser';
 
   function formatDate(str) {
     if (!str) return '—';
@@ -169,12 +408,14 @@
                 <span class="progress-dot">●</span> ${v.progress}
               </span>`;
     if (v.status === 'failed' && v.progress)
-      return `<span style="font-size:0.75rem;color:#cc2222">${v.progress}</span>`;
+      return `<span style="font-size:0.75rem;color:#cc2222">
+                ${v.progress}
+              </span>`;
     return '—';
   }
 
   function versionLabel(id) {
-    return versionCache[id] || 'will create next version';
+    return versionCache[id] || '…';
   }
 
   async function fetchVersionLabel(id) {
@@ -185,39 +426,48 @@
     } catch(e) {}
   }
 
-  function actionCell(v) {
-    const dis = isProcessing ? 'disabled' : '';
-    if (v.status === 'detected')
-      return `<button class="btn btn-dark"
-                onclick="process(${v.id},this)" ${dis}>▶ Process</button>`;
-    if (v.status === 'failed')
-      return `<button class="btn btn-danger"
-                onclick="process(${v.id},this)" ${dis}>↺ Retry</button>`;
-    if (v.status === 'completed')
-      return `<button class="btn btn-green"
-                onclick="process(${v.id},this)" ${dis}>↺ Re-run</button>
-              <span class="v2-note">${versionLabel(v.id)}</span>`;
-    return '—';
+  function escapeHtml(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
 
-  function cardAction(v) {
-    const dis = isProcessing ? 'disabled' : '';
+  function playButtons(v) {
+    const rawBtn = `<button class="btn btn-play btn-sm"
+      onclick="playVideo(${v.id},'raw','${escapeHtml(v.lesson_title || v.filepath.split('/').pop())}')">
+      ▶ Raw</button>`;
+    const editedBtn = v.status === 'completed'
+      ? `<button class="btn btn-play-edited btn-sm"
+          onclick="playVideo(${v.id},'edited','${escapeHtml(v.lesson_title || v.filepath.split('/').pop())}')">
+          ▶ Edited</button>`
+      : '';
+    return `<div class="play-row">${rawBtn}${editedBtn}</div>`;
+  }
+
+  function actionCell(v) {
+    const dis = isProcessing ? ' disabled' : '';
+    let mainBtn = '';
     if (v.status === 'detected')
-      return `<button class="btn btn-dark"
-                onclick="process(${v.id},this)" ${dis}>▶ Process</button>`;
-    if (v.status === 'failed')
-      return `<button class="btn btn-danger"
-                onclick="process(${v.id},this)" ${dis}>↺ Retry</button>`;
-    if (v.status === 'completed')
-      return `<div style="text-align:right">
-                <button class="btn btn-green"
-                  onclick="process(${v.id},this)" ${dis}>↺ Re-run</button>
-                <span class="v2-note">${versionLabel(v.id)}</span>
-              </div>`;
-    return '';
+      mainBtn = `<button class="btn btn-dark"
+                   onclick="process(${v.id},this)"${dis}>
+                   ▶ Process</button>`;
+    else if (v.status === 'failed')
+      mainBtn = `<button class="btn btn-danger"
+                   onclick="process(${v.id},this)"${dis}>
+                   ↺ Retry</button>`;
+    else if (v.status === 'completed')
+      mainBtn = `<button class="btn btn-green"
+                   onclick="process(${v.id},this)"${dis}>
+                   ↺ Re-run</button>
+                 <span class="v2-note">${versionLabel(v.id)}</span>`;
+    return `<div class="action-cell">
+              ${mainBtn}
+              ${playButtons(v)}
+            </div>`;
   }
 
   function renderTable(videos) {
+    const newJson = JSON.stringify(videos);
+    if (newJson === lastVideoJson) return;
+    lastVideoJson = newJson;
     const tbody = document.getElementById('queue');
     if (!videos.length) {
       tbody.innerHTML = '<tr><td colspan="6" class="empty">No videos detected yet. Drop a video into your watched folder.</td></tr>';
@@ -236,6 +486,9 @@
   }
 
   function renderCards(videos) {
+    const newJson = JSON.stringify(videos);
+    if (newJson === lastCardJson) return;
+    lastCardJson = newJson;
     const container = document.getElementById('cards');
     if (!videos.length) {
       container.innerHTML = '<div class="card"><p class="empty">No videos yet.</p></div>';
@@ -256,7 +509,30 @@
              </div>` : ''}
         <div class="card-footer">
           ${statusBadge(v.status)}
-          ${cardAction(v)}
+          <div class="card-actions">
+            ${v.status === 'detected'
+              ? `<button class="btn btn-dark btn-sm"
+                   onclick="process(${v.id},this)"
+                   ${isProcessing?'disabled':''}>▶ Process</button>`
+              : v.status === 'failed'
+              ? `<button class="btn btn-danger btn-sm"
+                   onclick="process(${v.id},this)"
+                   ${isProcessing?'disabled':''}>↺ Retry</button>`
+              : v.status === 'completed'
+              ? `<button class="btn btn-green btn-sm"
+                   onclick="process(${v.id},this)"
+                   ${isProcessing?'disabled':''}>↺ Re-run</button>`
+              : ''}
+            <button class="btn btn-play btn-sm"
+              onclick="playVideo(${v.id},'raw','${escapeHtml(v.lesson_title || v.filepath.split('/').pop())}')">
+              ▶ Raw</button>
+            ${v.status === 'completed'
+              ? `<button class="btn btn-play-edited btn-sm"
+                  onclick="playVideo(${v.id},'edited','${escapeHtml(v.lesson_title || v.filepath.split('/').pop())}')">
+                  ▶ Edited</button>` : ''}
+          </div>
+          ${v.status === 'completed'
+            ? `<span class="v2-note">${versionLabel(v.id)}</span>` : ''}
         </div>
       </div>
     `).join('');
@@ -266,15 +542,11 @@
     try {
       const res = await fetch(API + '/videos');
       const videos = await res.json();
-
       isProcessing = videos.some(v => v.status === 'processing');
-
-      // Fetch version labels for completed videos not yet cached
       const completedUncached = videos.filter(
         v => v.status === 'completed' && !versionCache[v.id]
       );
       await Promise.all(completedUncached.map(v => fetchVersionLabel(v.id)));
-
       document.getElementById('s-waiting').textContent =
         videos.filter(v => v.status === 'detected').length;
       document.getElementById('s-processing').textContent =
@@ -284,9 +556,8 @@
       document.getElementById('s-failed').textContent =
         videos.filter(v => v.status === 'failed').length;
       document.getElementById('subtitle').textContent =
-        `${videos.length} videos in system · auto-refreshes every 4s`
+        `${videos.length} videos in system · auto-refreshes every few seconds..`
         + (isProcessing ? ' · processing in progress' : '');
-
       renderTable(videos);
       renderCards(videos);
     } catch(e) {
@@ -295,38 +566,202 @@
     }
   }
 
-  async function syncNow() {
-    await fetch(API + '/sync', { method: 'POST' });
-    // Clear version cache so labels refresh after sync
-    Object.keys(versionCache).forEach(k => delete versionCache[k]);
-    load();
-  }
-
   async function process(id, btn) {
-    isProcessing = true;
     btn.disabled = true;
     btn.textContent = 'Starting…';
-    // Clear version cache for this video so label refreshes after completion
+    isProcessing = true;
     delete versionCache[id];
-    load();
+    document.querySelectorAll(
+      'button.btn-dark, button.btn-green, button.btn-danger'
+    ).forEach(b => { if (b !== btn) b.disabled = true; });
     await fetch(API + '/process/' + id, { method: 'POST' });
     isProcessing = false;
     delete versionCache[id];
+    lastVideoJson = '';
+    lastCardJson = '';
     load();
+  }
+
+  async function playVideo(id, type, title) {
+    const endpoint = type === 'raw'
+      ? `${API}/raw-path/${id}`
+      : `${API}/edited-path/${id}`;
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    if (!data.path) {
+      alert('File not found.');
+      return;
+    }
+
+    if (videoPlayer === 'browser') {
+      document.getElementById('playerTitle').textContent = title;
+      document.getElementById('playerSubtitle').textContent =
+        type === 'raw' ? 'Raw video' : 'Edited version (latest)';
+      const video = document.getElementById('playerVideo');
+      video.src = type === 'raw'
+        ? `${API}/video-file/${id}`
+        : `${API}/edited-file/${id}`;
+      video.load();
+      document.getElementById('playerModal').classList.add('open');
+    } else {
+      await fetch(API + '/open-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: data.path, player: videoPlayer })
+      });
+    }
+  }
+
+  function closePlayer(e) {
+    if (e.target === document.getElementById('playerModal'))
+      closePlayerBtn();
+  }
+
+  function closePlayerBtn() {
+    const video = document.getElementById('playerVideo');
+    video.pause();
+    video.src = '';
+    document.getElementById('playerModal').classList.remove('open');
+  }
+
+  async function openFolder(key) {
+    await fetch(API + '/open-folder/' + key, { method: 'POST' });
   }
 
   async function clearCompleted() {
     if (!confirm('Remove completed jobs from the list? This does not delete any video files.')) return;
     await fetch(API + '/videos/completed', { method: 'DELETE' });
     Object.keys(versionCache).forEach(k => delete versionCache[k]);
+    lastVideoJson = '';
+    lastCardJson = '';
     load();
   }
 
-  // Auto-sync every 30 seconds to catch deleted files
+  async function restartServer() {
+    const btn = document.querySelector('#restartBanner button');
+    btn.disabled = true;
+    btn.textContent = 'Restarting…';
+    try {
+      await fetch(API + '/restart', { method: 'POST' });
+    } catch(e) {}
+    // Wait for server to come back up then reload
+    document.getElementById('subtitle').textContent =
+      'Restarting server…';
+    setTimeout(async () => {
+      for (let i = 0; i < 15; i++) {
+        try {
+          await fetch(API + '/health');
+          document.getElementById('restartBanner').classList.remove('show');
+          load();
+          return;
+        } catch(e) {
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+      document.getElementById('subtitle').textContent =
+        'Server did not restart — please restart manually.';
+    }, 2000);
+  }
+
+  async function openSettings() {
+    const res = await fetch(API + '/config');
+    const cfg = await res.json();
+    document.getElementById('cfg-raw').value =
+      cfg.folders.raw_videos || '';
+    document.getElementById('cfg-edited').value =
+      cfg.folders.edited_videos || '';
+    document.getElementById('cfg-temp').value =
+      cfg.folders.temp || '';
+    document.getElementById('cfg-filemanager').value =
+      cfg.file_manager || 'nautilus';
+    document.getElementById('cfg-videoplayer').value =
+      cfg.video_player || 'browser';
+    document.getElementById('cfg-font').value =
+      cfg.captions.font || 'Liberation Sans';
+    document.getElementById('cfg-size').value =
+      cfg.captions.size || 14;
+    document.getElementById('cfg-outline').value =
+      cfg.captions.outline || 2;
+    document.getElementById('cfg-margin').value =
+      cfg.captions.margin_bottom || 20;
+    document.getElementById('cfg-whisper').value =
+      cfg.whisper_model || 'base';
+    document.getElementById('settingsOverlay').classList.add('open');
+  }
+
+  function closeSettings() {
+    document.getElementById('settingsOverlay').classList.remove('open');
+  }
+
+  function closeSettingsIfOutside(e) {
+    if (e.target === document.getElementById('settingsOverlay'))
+      closeSettings();
+  }
+
+  async function browseTo(inputId) {
+    try {
+      const res = await fetch(API + '/pick-folder');
+      const data = await res.json();
+      if (data.path) document.getElementById(inputId).value = data.path;
+    } catch(e) { alert('Could not open folder picker.'); }
+  }
+
+  async function saveSettings() {
+    const res = await fetch(API + '/config');
+    const cfg = await res.json();
+    const newRaw = document.getElementById('cfg-raw').value;
+    const newModel = document.getElementById('cfg-whisper').value;
+    const needsRestart =
+      newRaw !== cfg.folders.raw_videos ||
+      document.getElementById('cfg-edited').value !== cfg.folders.edited_videos ||
+      document.getElementById('cfg-temp').value !== cfg.folders.temp ||
+      newModel !== cfg.whisper_model;
+
+    cfg.folders.raw_videos = newRaw;
+    cfg.folders.edited_videos =
+      document.getElementById('cfg-edited').value;
+    cfg.folders.temp = document.getElementById('cfg-temp').value;
+    cfg.file_manager = document.getElementById('cfg-filemanager').value;
+    cfg.video_player = document.getElementById('cfg-videoplayer').value;
+    cfg.captions.font = document.getElementById('cfg-font').value;
+    cfg.captions.size =
+      parseInt(document.getElementById('cfg-size').value);
+    cfg.captions.outline =
+      parseInt(document.getElementById('cfg-outline').value);
+    cfg.captions.margin_bottom =
+      parseInt(document.getElementById('cfg-margin').value);
+    cfg.whisper_model = document.getElementById('cfg-whisper').value;
+
+    await fetch(API + '/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg)
+    });
+
+    // Update local video player setting immediately
+    videoPlayer = cfg.video_player;
+
+    closeSettings();
+
+    if (needsRestart) {
+      document.getElementById('restartBanner').classList.add('show');
+    }
+  }
+
+  // Load video player preference on startup
+  async function loadConfig() {
+    try {
+      const res = await fetch(API + '/config');
+      const cfg = await res.json();
+      videoPlayer = cfg.video_player || 'browser';
+    } catch(e) {}
+  }
+
   async function autoSync() {
     await fetch(API + '/sync', { method: 'POST' }).catch(() => {});
   }
 
+  loadConfig();
   load();
   setInterval(load, 4000);
   setInterval(autoSync, 30000);

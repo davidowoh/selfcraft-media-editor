@@ -24,8 +24,9 @@ def init_db():
 
 def add_video(filepath, metadata):
     import glob
+    from app.core.config import get_folders
+    edited_folder = get_folders()['edited_videos']
     base = os.path.splitext(os.path.basename(filepath))[0]
-    edited_folder = "/home/davidowoh/SelfCraft Media/Edited Videos"
     pattern = os.path.join(edited_folder, f"{base} (Edited*).mp4")
     existing_output = glob.glob(pattern)
     status = 'completed' if existing_output else 'detected'

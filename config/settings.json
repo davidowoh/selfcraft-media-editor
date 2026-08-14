@@ -1,0 +1,20 @@
+{
+  "folders": {
+    "raw_videos": "/home/davidowoh/SelfCraft Media/Raw Videos",
+    "edited_videos": "/home/davidowoh/SelfCraft Media/Edited Videos",
+    "temp": "/home/davidowoh/SelfCraft Media/Temp"
+  },
+  "file_manager": "nautilus",
+  "video_player": "browser",
+  "captions": {
+    "font": "Liberation Sans",
+    "size": 14,
+    "colour": "&H00FFFFFF",
+    "outline_colour": "&H00000000",
+    "outline": 2,
+    "shadow": 1,
+    "margin_bottom": 20
+  },
+  "whisper_model": "base",
+  "max_parallel_jobs": 1
+}
