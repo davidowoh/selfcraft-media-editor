@@ -442,8 +442,8 @@
     return `<div class="play-row">${rawBtn}${editedBtn}</div>`;
   }
 
-  function actionCell(v) {
-    const dis = isProcessing ? ' disabled' : '';
+function actionCell(v) {
+    const dis = (isProcessing || !serverOnline) ? ' disabled' : '';
     let mainBtn = '';
     if (v.status === 'detected')
       mainBtn = `<button class="btn btn-dark"
@@ -513,15 +513,15 @@
             ${v.status === 'detected'
               ? `<button class="btn btn-dark btn-sm"
                    onclick="process(${v.id},this)"
-                   ${isProcessing?'disabled':''}>▶ Process</button>`
+                   ${(isProcessing||!serverOnline)?'disabled':''}>▶ Process</button>`
               : v.status === 'failed'
               ? `<button class="btn btn-danger btn-sm"
                    onclick="process(${v.id},this)"
-                   ${isProcessing?'disabled':''}>↺ Retry</button>`
+                   ${(isProcessing||!serverOnline)?'disabled':''}>↺ Retry</button>`
               : v.status === 'completed'
               ? `<button class="btn btn-green btn-sm"
                    onclick="process(${v.id},this)"
-                   ${isProcessing?'disabled':''}>↺ Re-run</button>`
+                   ${(isProcessing||!serverOnline)?'disabled':''}>↺ Re-run</button>`
               : ''}
             <button class="btn btn-play btn-sm"
               onclick="playVideo(${v.id},'raw','${escapeHtml(v.lesson_title || v.filepath.split('/').pop())}')">
@@ -538,10 +538,12 @@
     `).join('');
   }
 
-  async function load() {
+async function load() {
     try {
       const res = await fetch(API + '/videos');
       const videos = await res.json();
+      serverOnline = true;
+
       isProcessing = videos.some(v => v.status === 'processing');
       const completedUncached = videos.filter(
         v => v.status === 'completed' && !versionCache[v.id]
@@ -556,17 +558,22 @@
       document.getElementById('s-failed').textContent =
         videos.filter(v => v.status === 'failed').length;
       document.getElementById('subtitle').textContent =
-        `${videos.length} videos in system · auto-refreshes every few seconds..`
+        `${videos.length} videos in system · auto-refreshes every few seconds ..`
         + (isProcessing ? ' · processing in progress' : '');
       renderTable(videos);
       renderCards(videos);
     } catch(e) {
-      document.getElementById('subtitle').textContent =
-        '⚠ Cannot reach backend — is the server running?';
+      serverOnline = false;
+      document.getElementById('subtitle').innerHTML =
+        '<span style="color:#cc2222;font-weight:600">⚠ Cannot reach backend — is the server running?</span>';
+      // Force re-render so buttons update to reflect offline state
+      lastVideoJson = '';
+      lastCardJson = '';
     }
   }
 
-  async function process(id, btn) {
+async function process(id, btn) {
+    if (!serverOnline) return;
     btn.disabled = true;
     btn.textContent = 'Starting…';
     isProcessing = true;
@@ -624,11 +631,19 @@
     document.getElementById('playerModal').classList.remove('open');
   }
 
-  async function openFolder(key) {
+async function openFolder(key) {
+    if (!serverOnline) {
+      alert('Server is not running — cannot open folder.\nStart the server first.');
+      return;
+    }
     await fetch(API + '/open-folder/' + key, { method: 'POST' });
   }
 
-  async function clearCompleted() {
+async function clearCompleted() {
+    if (!serverOnline) {
+      alert('Server is not running — cannot clear jobs.\nStart the server first.');
+      return;
+    }
     if (!confirm('Remove completed jobs from the list? This does not delete any video files.')) return;
     await fetch(API + '/videos/completed', { method: 'DELETE' });
     Object.keys(versionCache).forEach(k => delete versionCache[k]);
@@ -664,6 +679,10 @@
   }
 
   async function openSettings() {
+    if (!serverOnline) {
+      alert('Server is not running — cannot open settings.\nStart the server first.');
+      return;
+    }
     const res = await fetch(API + '/config');
     const cfg = await res.json();
     document.getElementById('cfg-raw').value =
