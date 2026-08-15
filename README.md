@@ -1,8 +1,8 @@
 # SelfCraft Media Editor (SME)
 
 An automated video post-production tool for SelfCraft Academy. Drop a raw
-video into the right folder — SME transcribes it, burns captions, removes
-silence, and exports a clean finished video. The original is never touched.
+video into the right folder — SME transcribes it, burns captions, and exports
+a clean finished video. The original is never touched.
 
 ---
 
@@ -10,7 +10,7 @@ silence, and exports a clean finished video. The original is never touched.
 
 - Watches folders for new video files automatically
 - Reads programme, week, module, and lesson info from the folder structure
-- Transcribes audio using Whisper AI (runs fully offline)
+- Transcribes audio using Whisper AI (runs fully offline after first run)
 - Burns captions onto the video at the correct size
 - Exports Recorded Lessons in landscape (1920×1080) and Reels/Testimonials
   in vertical (1080×1920)
@@ -45,7 +45,7 @@ source .venv/bin/activate
 ```
 
 **Windows:**
-```bash
+```
 python -m venv .venv
 .venv\Scripts\activate
 ```
@@ -69,7 +69,7 @@ sudo apt install ffmpeg
 ```
 
 **Windows:**
-```bash
+```
 winget install ffmpeg
 ```
 
@@ -85,7 +85,7 @@ sudo dnf install python3-tkinter
 sudo apt install python3-tk
 ```
 
-**Windows:** tkinter is included with Python by default.
+**Windows:** tkinter is included with Python — no separate install needed.
 
 ---
 
@@ -101,6 +101,7 @@ Open `config/settings.json` and update the folder paths to match your machine:
     "temp": "/your/path/to/SelfCraft Media/Temp"
   },
   "file_manager": "nautilus",
+  "video_player": "browser",
   "captions": {
     "font": "Liberation Sans",
     "size": 14,
@@ -115,19 +116,8 @@ Open `config/settings.json` and update the folder paths to match your machine:
 }
 ```
 
-**Windows users:** use forward slashes or double backslashes in paths:
-```json
-"raw_videos": "C:/Users/YourName/SelfCraft Media/Raw Videos"
-```
-
-**File manager command:**
-- Linux (GNOME): `nautilus`
-- Linux (XFCE): `thunar`
-- Linux (KDE): `dolphin`
-- Windows: `explorer`
-
-You can also change all folder paths from the Settings panel inside the
-dashboard without editing this file manually.
+You can also change all settings from the Settings panel inside the dashboard
+without editing this file manually.
 
 ---
 
@@ -159,18 +149,23 @@ week, module, and lesson information from the path automatically.
 
 ### Start the server
 
+**Linux / macOS:**
 ```bash
-source .venv/bin/activate   # Linux/macOS
-# or
-.venv\Scripts\activate      # Windows
+source .venv/bin/activate
+uvicorn app.core.main:app --reload
+```
 
+**Windows:**
+```
+.venv\Scripts\activate
 uvicorn app.core.main:app --reload
 ```
 
 ### Open the dashboard
 
-Open `dashboard.html` directly in your browser. On Linux:
+Open `dashboard.html` directly in your browser.
 
+**Linux:**
 ```bash
 xdg-open dashboard.html
 ```
@@ -217,24 +212,24 @@ fully offline.
 
 ## Troubleshooting
 
-**Dashboard shows "Cannot reach backend"**
+**Dashboard shows red "Cannot reach backend"**
 The server is not running. Start it with `uvicorn app.core.main:app --reload`.
 
 **Video stuck on "processing" after restart**
 Normal — the app detects this on startup and resets stuck jobs to "detected"
-automatically.
+automatically. Click Retry on any stuck job.
 
 **Captions not appearing**
 Check that the `.srt` file was generated in the Temp folder during processing.
-If the Temp folder is empty after a failed run, the transcription step failed —
-check the terminal for Whisper errors.
+Very quiet or muffled audio may produce no transcript.
 
 **FFmpeg not found**
 Run `ffmpeg -version` in your terminal. If it fails, reinstall FFmpeg and
 make sure it is added to your PATH.
 
-**Folder picker (Browse button) not working**
-Install tkinter for your platform (see Installation step 5).
+**Folder picker (Browse button) not working on Linux**
+Install tkinter: `sudo dnf install python3-tkinter` (Fedora) or
+`sudo apt install python3-tk` (Ubuntu).
 
 ---
 
@@ -247,18 +242,63 @@ Install tkinter for your platform (see Installation step 5).
 | Video processing | FFmpeg |
 | Database | SQLite |
 | Folder watching | watchdog |
-| Frontend | Plain HTML/CSS/JS (no framework) |
+| Frontend | Plain HTML/CSS/JS |
 
 ---
 
 ## Notes for Windows Users
 
-- Change `file_manager` in settings to `explorer`
-- Use the Settings panel Browse button to set folder paths
-  (avoids backslash issues)
-- The first Whisper model download requires an internet connection
-- Everything else runs fully offline
+### First-time setup
+
+Windows users can run `setup.bat` (double-click it) for fully automatic
+setup — it installs dependencies, creates the virtual environment, creates
+media folders on the Desktop, and configures paths automatically.
+
+After that, double-click `start.bat` every time you want to use the app.
+
+### Manual setup (if setup.bat doesn't work)
+
+1. Install Python from **python.org/downloads** — tick
+   **"Add python.exe to PATH"** on the first installer screen
+2. Install Git from **git-scm.com** — accept all defaults
+3. Open a terminal as Administrator and run:
+   `winget install ffmpeg` — then close and reopen the terminal
+4. Clone this repo and navigate into it
+5. Create the virtual environment:
+   ```
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+6. Install libraries:
+   ```
+   pip install fastapi uvicorn openai-whisper watchdog python-multipart
+   ```
+7. Open `config/settings.json` in Notepad and update folder paths.
+   Use forward slashes and change `file_manager` to `explorer`:
+   ```json
+   "raw_videos": "C:/Users/YourName/Desktop/SelfCraft Media/Raw Videos",
+   "file_manager": "explorer"
+   ```
+
+### Every time you use SME on Windows
+
+```
+cd path\to\selfcraft-media-editor
+.venv\Scripts\activate
+uvicorn app.core.main:app --reload
+```
+
+Then open `dashboard.html` in your browser.
+
+### Windows-specific notes
+
+- tkinter is bundled with Python on Windows — no separate install needed
+- Use the Browse button in Settings to set folder paths without typing
+- Change `file_manager` to `explorer` in settings
+- Leave the terminal window open while using the app — closing it stops the server
+- If FFmpeg is not found after install, restart your computer
 
 ---
 
 *SelfCraft Academy — internal tooling*
+*Built with Python, FastAPI, Whisper, and FFmpeg*
